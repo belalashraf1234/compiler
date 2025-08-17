@@ -11,6 +11,26 @@ class Lexer:
        ch=self.source_code[self.current]
        self.current += 1
        return ch
+    def handle_identifier(self):
+        while self.peak().isalnum() or self.peak() == '_':
+            self.advance()
+        text= self.source_code[self.start:self.current]
+        keword_type=keywords.get(text)
+        if keword_type == None:
+            self.add_token(TOK_IDENTIFIER)
+        else:
+            self.add_token(keword_type)
+       
+    def handle_number(self):
+        while self.peak().isdigit():
+            self.advance()
+        if self.peak() == '.' and self.look_ahead().isdigit():
+            self.advance()
+            while self.peak().isdigit():
+                self.advance()
+            self.add_token(TOK_FLOAT) 
+        else:
+            self.add_token(TOK_INTEGER)
     def peak(self):
        if self.current >= len(self.source_code):
            return '\0' 
@@ -26,6 +46,13 @@ class Lexer:
        if self.current + 1 >= len(self.source_code):
            return '\0'
        return self.source_code[self.current + n]
+    def handle_string(self,start_qoute):
+        while self.peak() != start_qoute and not(self.current >= len(self.source_code)):
+            self.advance()
+        if self.current >= len(self.source_code):
+            raise Exception(f"Unterminated string at line {self.line}")
+        self.advance()  # Consume the closing quote
+        self.add_token(TOK_STRING)
     def add_token(self, type):
      
        value = self.source_code[self.start:self.current]
@@ -45,6 +72,7 @@ class Lexer:
            elif char == '#':
                while self.peak() != '\n' and not(self.current >= len(self.source_code)):
                    self.advance()
+    
                
            elif char == '(': self.add_token(TOK_LPAREN)
            elif char == ')': self.add_token(TOK_RPAREN)
@@ -62,8 +90,11 @@ class Lexer:
            elif char == '^': self.add_token(TOK_CARET)
            elif char == '?': self.add_token(TOK_QUESTION)
            elif char == ';': self.add_token(TOK_SEMICOLON)
+           elif char == ':':
+               self.add_token(TOK_ASSIGN if self.match('=') else TOK_COLON)
            elif char=='=':
-               self.add_token(TOK_EQ if self.match('=') else TOK_ASSIGN)
+               self.add_token(TOK_EQEQ if self.match('=') else TOK_EQ)
+
            elif char == '!':
                self.add_token(TOK_NE if self.match('=') else TOK_NOT)
            elif char == '>':
@@ -74,6 +105,13 @@ class Lexer:
                self.add_token(TOK_GGT if self.match('>') else TOK_GT)
            elif char == '<':
                self.add_token(TOK_LLT if self.match('<') else TOK_LT)
+           elif char.isdigit():
+               self.handle_number()
+           elif char=='"' or char=='\'':
+               self.handle_string(char)
+           elif char.isalpha() or char == '_':
+               self.handle_identifier()
+            
            
           
        return self.tokens

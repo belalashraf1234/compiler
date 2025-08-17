@@ -1,7 +1,8 @@
 import sys
 from tokens import *
 from lexer import *
-
+from parser import *
+from utils import *
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python main.py <source_file>")
@@ -10,9 +11,24 @@ if __name__ == "__main__":
     source_file = sys.argv[1]
     
     with open(source_file, 'r') as file:
+
         source_code = file.read()
-        tokens = Lexer(source_code).tokenize()
-        for token in tokens:
-            print(token)
-        
-      
+        print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
+print(f'{Colors.GREEN}SOURCE:{Colors.WHITE}')
+print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
+print(source_code)
+
+print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
+print(f'{Colors.GREEN}TOKENS:{Colors.WHITE}')
+print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
+tokens = Lexer(source_code).tokenize()
+for tok in tokens:
+    print(tok)
+
+print()
+print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
+print(f'{Colors.GREEN}AST:{Colors.WHITE}')
+print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
+ast = Parser(tokens).parse()
+print_pretty_ast(ast)
+
