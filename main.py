@@ -29,6 +29,6 @@ print()
 print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
 print(f'{Colors.GREEN}AST:{Colors.WHITE}')
 print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
-ast = Parser(tokens).parse()
+ast = Parser(tokens).expr()
 print_pretty_ast(ast)
 

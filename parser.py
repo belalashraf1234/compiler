@@ -1,5 +1,6 @@
 from tokens import *
 from model import *
+from utils import *
 
 
 class Parser:
@@ -23,12 +24,12 @@ class Parser:
         
     def expect(self, type):
         if self.curr >= len(self.tokens):
-            print(f'found {self.previous_token().lexeme} at the end of line pasing')
+            parse_error(f'found {self.previous_token().lexeme} at the end of line pasing',self.previous_token.line)
         elif self.peak().type==type:
             token= self.advance()
             return token
         else:
-            raise SyntaxError(f"Expected token of type {type}, but found {self.peek().type} with lexeme '{self.peek().lexeme}' at line {self.peek().line}")
+            parse_error(f"Expected token of type {type}, but found {self.peek().type} with lexeme '{self.peek().lexeme}' ",self.peek().line)
         
 
 
@@ -46,43 +47,43 @@ class Parser:
         pass
     def primary(self):
         if self.match(TOK_INTEGER):
-            return Intger(int(self.previous_token().lexeme))
+            return Intger(int(self.previous_token().lexeme),line=self.previous_token().line)
         if self.match(TOK_FLOAT):
-            return Float(float(self.previous_token().lexeme))
+            return Float(float(self.previous_token().lexeme), line=self.previous_token().line)
         if self.match(TOK_LPAREN):
             expr = self.expr()
             if not (self.match(TOK_RPAREN)):
-                raise SyntaxError("Expected ')'")
+               parse_error("Expected ')'",self.previous_token().line)
             else:
-                return Grouping(expr)
+                return Grouping(expr,line=self.previous_token().line)
         if self.curr >= len(self.tokens):
-            raise SyntaxError("Unexpected end of input")
-        raise SyntaxError(f"Unexpected token: {self.peek().lexeme}")
+            parse_error("Unexpected end of input",self.previous_token().line)
+        parse_error(f"Unexpected token: {self.peek().lexeme}",self.peek().line)
        
     def unary(self):
         if self.match(TOK_NOT) or self.match(TOK_MINUS) or self.match(TOK_PLUS):
             op = self.previous_token()
             operand = self.unary()
-            return UnOp(op, operand)
+            return UnOp(op, operand,self.previous_token().line)
         return self.primary()
-    def factor(self):
-       return self.unary()
-    def term(self):
-        expr= self.factor()
+    
+    
+    def multiplication(self):
+        expr= self.unary()
         while self.match(TOK_STAR) or self.match(TOK_SLASH):
             op = self.previous_token()
-            right = self.factor()
-            expr = BinOp(op, expr, right)
+            right = self.unary()
+            expr = BinOp(op, expr, right,self.previous_token().line)
         return expr
-    def expr(self):
-        expr=self.term()
+    def addition(self):
+        expr=self.multiplication()
         while self.match(TOK_PLUS) or self.match(TOK_MINUS):
             op=self.previous_token()
-            right=self.term()
-            expr=BinOp(op, expr, right)
+            right=self.multiplication()
+            expr=BinOp(op, expr, right,self.previous_token().line)
         return expr
 
 
-    def parse(self):
-        ast=self.expr()
-        return ast
+    def expr(self):
+        return self.addition()
+        
