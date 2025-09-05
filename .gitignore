@@ -5,3 +5,4 @@ __pycache__/model.cpython-313.pyc
 __pycache__/parser.cpython-313.pyc
 __pycache__/tokens.cpython-313.pyc
 __pycache__/utils.cpython-313.pyc
+__pycache__/interpreter.cpython-313.pyc

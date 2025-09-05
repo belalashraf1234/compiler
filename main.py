@@ -3,6 +3,7 @@ from tokens import *
 from lexer import *
 from parser import *
 from utils import *
+from interpreter import *
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python main.py <source_file>")
@@ -31,4 +32,12 @@ print(f'{Colors.GREEN}AST:{Colors.WHITE}')
 print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
 ast = Parser(tokens).expr()
 print_pretty_ast(ast)
+print()
+print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
+print(f'{Colors.GREEN}AST:{Colors.WHITE}')
+print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
+interpreter=Interpreter()
+val=interpreter.interpret(ast)
+print(val)
+
 
