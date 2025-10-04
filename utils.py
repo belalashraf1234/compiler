@@ -32,6 +32,10 @@ def lexing_error(message,lineno):
     print(f"{Colors.RED}[line {lineno}]: {message} {Colors.WHITE}")
     import sys
     sys.exit(1)
+def runtime_error(message,lineno):
+    print(f"{Colors.RED}[line {lineno}]: {message} {Colors.WHITE}")
+    import sys
+    sys.exit(1)
 
 
 

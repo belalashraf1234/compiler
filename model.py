@@ -30,6 +30,22 @@ class Float(Expression):
         self.line = line
     def __repr__(self):
         return f"Float({self.value})"
+class Bool():
+    def __init__(self,value,line):
+        assert isinstance(value,bool),value
+        self.value=value
+        self.line=line
+    def __repr__(self):
+        return f'Bool[{self.value}]'
+        
+    
+class String():
+    def __init__(self,value,line):
+        assert isinstance(value,str),value
+        self.value=value
+        self.line=line
+    def __repr__(self):
+        return f'String[{self.value}]'
 class UnOp(Expression):
     def __init__(self, operator:Token, operand:Expression, line):
         
