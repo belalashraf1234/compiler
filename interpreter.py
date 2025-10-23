@@ -14,6 +14,9 @@ class Interpreter:
             return (TYPE_NUMBER,float(node.value))
         elif isinstance(node,Bool):
             return (TYPE_BOOL,node.value)
+        elif isinstance(node,String):
+            return (TYPE_STRING,node.value)
+
         elif isinstance(node,Grouping):
             return self.interpret(node.expression)
         
@@ -65,7 +68,7 @@ class Interpreter:
             operandtype,operandval=self.interpret(node.operand)
             if node.operator.type==TOK_PLUS:
                 if operandtype==TYPE_NUMBER:
-                    return (TYPE_NUMBER,+operandval)
+                    return (TYPE_NUMBER,operandval)
                 else:
                     runtime_error(f'Unsupported operator {node.operator.lexeme!r} with {operandtype} ',node.operator.line) 
                 
