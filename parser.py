@@ -9,6 +9,7 @@ class Parser:
         self.curr = 0
     def advance(self):
        token= self.tokens[self.curr]
+       
        self.curr += 1
        return token
     def peek(self):
@@ -25,7 +26,7 @@ class Parser:
     def expect(self, type):
         if self.curr >= len(self.tokens):
             parse_error(f'found {self.previous_token().lexeme} at the end of line pasing',self.previous_token.line)
-        elif self.peak().type==type:
+        elif self.peek().type==type:
             token= self.advance()
             return token
         else:
@@ -65,31 +66,106 @@ class Parser:
         if self.curr >= len(self.tokens):
             parse_error("Unexpected end of input",self.previous_token().line)
         parse_error(f"Unexpected token: {self.peek().lexeme}",self.peek().line)
-       
+    
+    def exponent(self):
+        expr=self.primary()
+        if self.match(TOK_CARET):
+            op = self.previous_token()
+            right = self.exponent()
+            expr=BinOp(op,expr,right,line=op.line)
+        return expr        
+   
     def unary(self):
         if self.match(TOK_NOT) or self.match(TOK_MINUS) or self.match(TOK_PLUS):
             op = self.previous_token()
             operand = self.unary()
-            return UnOp(op, operand,self.previous_token().line)
-        return self.primary()
+            return UnOp(op, operand,line=op.line)
+        return self.exponent()
     
     
-    def multiplication(self):
-        expr= self.unary()
-        while self.match(TOK_STAR) or self.match(TOK_SLASH):
+    
+    def module(self):
+        expr=self.unary()
+        if self.match(TOK_MOD):
             op = self.previous_token()
             right = self.unary()
-            expr = BinOp(op, expr, right,self.previous_token().line)
+            expr=BinOp(op,expr,right,line=op.line)
+        return expr
+    
+    def multiplication(self):
+        expr= self.module()
+        while self.match(TOK_STAR) or self.match(TOK_SLASH):
+            op = self.previous_token()
+            right = self.module()
+            expr = BinOp(op, expr, right,line=op.line)
         return expr
     def addition(self):
         expr=self.multiplication()
         while self.match(TOK_PLUS) or self.match(TOK_MINUS):
             op=self.previous_token()
             right=self.multiplication()
-            expr=BinOp(op, expr, right,self.previous_token().line)
+            expr=BinOp(op, expr, right,line=op.line)
         return expr
 
+    def comparison(self):
+        expr=self.addition()
+        while self.match(TOK_GT) or self.match(TOK_GE) or self.match(TOK_LT) or self.match(TOK_LE):
+            op=self.previous_token()
+            right=self.addition()
+            expr=BinOp(op,expr,right,line=op.line)
+        return expr
+         
 
+    def equality(self):
+        expr=self.comparison()
+        while self.match(TOK_NE) or self.match(TOK_EQEQ):
+            op=self.previous_token()
+            right=self.comparison()
+            expr=BinOp(op,expr,right,line=op.line)
+        return expr
+    
+    def logical_and(self):
+        expr=self.equality()
+        while self.match(TOK_AND):
+            op=self.previous_token()
+            right=self.equality()
+            expr=LogicalOp(op,expr,right,line=op.line)
+        return expr
+    
+    def logical_or(self):
+        expr=self.logical_and()
+        while self.match(TOK_AND):
+            op=self.previous_token()
+            right=self.logical_and()
+            expr=LogicalOp(op,expr,right,line=op.line)
+        return expr
     def expr(self):
-        return self.addition()
+        expr=self.logical_or()
+        return expr
+    
+    def print_stmt(self):
+        if self.match(TOK_PRINT):
+            val=self.expr()
+            return PrintStmt(val,line=self.previous_token().line)
+
+
+    def stmt(self):
+        if self.peek().type==TOK_PRINT:
+            return self.print_stmt()
+
+
+    def stmts(self):
+        stmts=[]
+        while self.curr<len(self.tokens):
+            stmt=self.stmt()
+            stmts.append(stmt)
+        return Stmts(stmts,line=self.previous_token().line)    
+
+    def program(self):
+        stmts=self.stmts()
+        return stmts
+
+    def parse(self):
+        ast=self.program()
+        return ast
         

@@ -47,6 +47,8 @@ class Interpreter:
 
 
             elif node.operator.type==TOK_SLASH:
+                if rightval==0:
+                    runtime_error(f'divison by zero',node.line)
                 if lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER:
                     return (TYPE_NUMBER, leftval / rightval)
 
@@ -61,7 +63,45 @@ class Interpreter:
                 else:
                     runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line) 
             
+            elif node.operator.type==TOK_GT:
+                if(lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER) or (lefttype==TYPE_STRING and righttype==TYPE_STRING):
+                    return(TYPE_BOOL,leftval>rightval)
+                else:
+                    runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line)
+            elif node.operator.type==TOK_GE:
+                if(lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER) or (lefttype==TYPE_STRING and righttype==TYPE_STRING):
+                    return(TYPE_BOOL,leftval>=rightval)
+                else:
+                    runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line) 
+            elif node.operator.type==TOK_GE:
+                if(lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER) or (lefttype==TYPE_STRING and righttype==TYPE_STRING):
+                    return(TYPE_BOOL,leftval>=rightval)
+                else:
+                    runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line) 
+          
+            elif node.operator.type==TOK_LT:
+                if(lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER) or (lefttype==TYPE_STRING and righttype==TYPE_STRING):
+                    return(TYPE_BOOL,leftval<rightval)
+                else:
+                    runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line) 
                 
+            elif node.operator.type==TOK_LE:
+                if(lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER) or (lefttype==TYPE_STRING and righttype==TYPE_STRING):
+                    return(TYPE_BOOL,leftval<=rightval)
+                else:
+                    runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line)
+
+            elif node.operator.type==TOK_EQEQ:
+                if(lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER) or (lefttype==TYPE_STRING and righttype==TYPE_STRING) or (lefttype==TYPE_BOOL and righttype==TYPE_BOOL):
+                    return(TYPE_BOOL,leftval==rightval)
+                else:
+                    runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line)
+
+            elif node.operator.type==TOK_NE:
+                if(lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER) or (lefttype==TYPE_STRING and righttype==TYPE_STRING) or (lefttype==TYPE_BOOL and righttype==TYPE_BOOL):
+                    return(TYPE_BOOL,leftval!=rightval)
+                else:
+                    runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line)  
 
         
         elif isinstance(node,UnOp):
@@ -84,6 +124,22 @@ class Interpreter:
                 else:
                     runtime_error(f'Unsupported operator {node.operator.lexeme!r} with {operandtype} ',node.operator.line) 
 
+        elif isinstance(node,LogicalOp):
+            lefttype,leftval=self.interpret(node.left)
+            if node.operator.type==TOK_OR:
+                if leftval:
+                    return (lefttype,leftval)
+            elif node.operator.type==TOK_AND:
+                if not leftval:
+                    return (lefttype,leftval)
+            return self.interpret(node.right)
+        
+        elif isinstance(node,Stmts):
+            for stmt in node.stmts:
+                self.interpret(stmt)
+        elif isinstance(node,PrintStmt):
+            exprtype,exprval=self.interpret(node.value)
+            print(exprval)
 
 
 

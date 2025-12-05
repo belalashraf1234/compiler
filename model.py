@@ -72,12 +72,39 @@ class BinOp(Expression):
     def __repr__(self):
         return f"BinOp({self.operator.lexeme}, {self.left},  {self.right})"
 
-def WhileStmt(Stmt):
+
+class LogicalOp(Expression):
+    def __init__(self, operator:Token, left:Expression, right:Expression,line):
+        assert isinstance(left, Expression), left
+        assert isinstance(right, Expression), right
+        assert isinstance(operator, Token), operator
+        self.left = left
+        self.operator = operator
+        self.right = right
+        self.line = line
+    def __repr__(self):
+        return f"LogicalOp({self.operator.lexeme}, {self.left},  {self.right})"
+
+class Stmts(Node):
+    def __init__(self,stmts,line):
+        assert all(isinstance(stmt,Stmt)for stmt in stmts),stmts
+        self.stmts=stmts
+        self.line=line
+    def __repr__(self):
+        return f'Stmts ({self.stmts})'
+class PrintStmt(Stmt):
+    def __init__(self,val,line):
+        assert isinstance(val,Expression),val
+        self.value=val
+        self.line=line
+    def __repr__(self):
+        return f'PrintStmt({self.value})'
+class WhileStmt(Stmt):
     pass
-def Assignment(Stmt):
+class Assignment(Stmt):
     pass
-def IfStmt(Stmt):
+class IfStmt(Stmt):
     pass
 
-def ForStmt(Stmt):
+class ForStmt(Stmt):
     pass

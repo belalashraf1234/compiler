@@ -30,14 +30,14 @@ print()
 print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
 print(f'{Colors.GREEN}AST:{Colors.WHITE}')
 print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
-ast = Parser(tokens).expr()
+ast = Parser(tokens).parse()
 print_pretty_ast(ast)
 print()
 print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
 print(f'{Colors.GREEN}AST:{Colors.WHITE}')
 print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
 interpreter=Interpreter()
-val=interpreter.interpret(ast)
-print(val)
+interpreter.interpret(ast)
+
 
 
