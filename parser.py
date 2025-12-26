@@ -9,7 +9,6 @@ class Parser:
         self.curr = 0
     def advance(self):
        token= self.tokens[self.curr]
-       
        self.curr += 1
        return token
     def peek(self):
@@ -49,20 +48,23 @@ class Parser:
     def primary(self):
         if self.match(TOK_INTEGER):
             return Intger(int(self.previous_token().lexeme),line=self.previous_token().line)
-        if self.match(TOK_FLOAT):
+        elif self.match(TOK_FLOAT):
             return Float(float(self.previous_token().lexeme), line=self.previous_token().line)
-        if self.match(TOK_TRUE):
+        elif self.match(TOK_TRUE):
             return Bool(True,line=self.previous_token().line)
-        if self.match(TOK_FALSE):
+        elif self.match(TOK_FALSE):
             return Bool(False,line=self.previous_token().line)
-        if self.match(TOK_STRING):
+        elif self.match(TOK_STRING):
             return String(str(self.previous_token().lexeme[1:-1]),line=self.previous_token().line)
-        if self.match(TOK_LPAREN):
+        elif self.match(TOK_LPAREN):
             expr = self.expr()
             if not (self.match(TOK_RPAREN)):
                parse_error("Expected ')'",self.previous_token().line)
             else:
                 return Grouping(expr,line=self.previous_token().line)
+        else:
+            identifier=self.expect(TOK_IDENTIFIER)
+            return Identifier(identifier.lexeme,line=self.previous_token().line)
         if self.curr >= len(self.tokens):
             parse_error("Unexpected end of input",self.previous_token().line)
         parse_error(f"Unexpected token: {self.peek().lexeme}",self.peek().line)
@@ -143,20 +145,48 @@ class Parser:
         expr=self.logical_or()
         return expr
     
-    def print_stmt(self):
-        if self.match(TOK_PRINT):
+    def print_stmt(self,end):
+        if self.match(TOK_PRINT) or self.match(TOK_PRINTLN):
             val=self.expr()
-            return PrintStmt(val,line=self.previous_token().line)
+            return PrintStmt(val,end,line=self.previous_token().line)
+    def if_stmt(self):
+        self.expect(TOK_IF)
+        test=self.expr()
+        self.expect(TOK_THEN)
+        then_stmts=self.stmts()
+        if self.is_next(TOK_ELSE):
+            self.advance()
+            else_stmts=self.stmts()
+        else:
+            else_stmts=None
+        self.expect(TOK_END)
+        return IfStmt(test,then_stmts,else_stmts,line=self.previous_token().line)    
+
+
+
 
 
     def stmt(self):
-        if self.peek().type==TOK_PRINT:
-            return self.print_stmt()
+        if self.peek().type == TOK_PRINT:
+            return self.print_stmt(end='')
+        if self.peek().type == TOK_PRINTLN:
+            return self.print_stmt(end='\n')
+        if self.peek().type == TOK_IF:
+            return self.if_stmt()
+        else:
+            left=self.expr()
+            if self.match(TOK_ASSIGN):
+                right=self.expr()
+                return Assignment(left,right,self.previous_token().line)
+            else:
+                pass
+
+        
 
 
     def stmts(self):
         stmts=[]
-        while self.curr<len(self.tokens):
+        while self.curr<len(self.tokens) and not self.is_next(TOK_ELSE) and not self.is_next(TOK_END):            
             stmt=self.stmt()
             stmts.append(stmt)
         return Stmts(stmts,line=self.previous_token().line)    

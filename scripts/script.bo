@@ -1,1 +1,6 @@
-print true and false 
+x:=5
+if 5>2 then
+    print true and false 
+else 
+     println true and true 
+end     

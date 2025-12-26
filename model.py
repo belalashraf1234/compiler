@@ -93,18 +93,46 @@ class Stmts(Node):
     def __repr__(self):
         return f'Stmts ({self.stmts})'
 class PrintStmt(Stmt):
-    def __init__(self,val,line):
+    def __init__(self,val,end,line):
         assert isinstance(val,Expression),val
         self.value=val
+        self.end=end
         self.line=line
     def __repr__(self):
-        return f'PrintStmt({self.value})'
+        return f'PrintStmt({self.value}), end={self.end!r}'
 class WhileStmt(Stmt):
     pass
 class Assignment(Stmt):
-    pass
+    def __init__(self,left,right,line):
+        assert isinstance(left,Expression),left
+        assert isinstance(right,Expression),right
+        self.left=left
+        self.right=right
+        self.line=line
+    def __repr__(self):
+        return f'Assiment({self.left}, {self.right})'
+        
+    
 class IfStmt(Stmt):
-    pass
+    def __init__(self,test,then_stmts,else_stmts,line):
+        assert  isinstance(test,Expression), test
+        assert  isinstance(then_stmts,Stmts), then_stmts
+        assert else_stmts is None or isinstance(else_stmts,Stmts), else_stmts
+        self.test=test
+        self.then_stmts=then_stmts
+        self.else_stmts=else_stmts
+        self.line=line
+    def __repr__(self):
+        return f'IfStmt({self.test}, true:{self.then_stmts}, else:{self.else_stmts}'
+
+class Identifier(Expression):
+    def __init__(self,name,line):
+        assert isinstance(name,str),name
+        self.name=name
+        self.line=line
+        
+    def __repr__(self):
+        return f'Identifier({self.name})'
 
 class ForStmt(Stmt):
     pass
