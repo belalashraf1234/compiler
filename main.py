@@ -37,7 +37,7 @@ print(f'{Colors.GREEN}**************************************************{Colors.
 print(f'{Colors.GREEN}AST:{Colors.WHITE}')
 print(f'{Colors.GREEN}**************************************************{Colors.WHITE}')
 interpreter=Interpreter()
-interpreter.interpret(ast)
+interpreter.interpret_ast(ast)
 
 
 

@@ -179,7 +179,7 @@ class Parser:
                 right=self.expr()
                 return Assignment(left,right,self.previous_token().line)
             else:
-                pass
+                parse_error(f" : {self.peek().lexeme}", self.peek().line)
 
         
 
@@ -198,4 +198,3 @@ class Parser:
     def parse(self):
         ast=self.program()
         return ast
-        

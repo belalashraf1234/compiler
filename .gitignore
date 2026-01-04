@@ -6,3 +6,6 @@ __pycache__/parser.cpython-313.pyc
 __pycache__/tokens.cpython-313.pyc
 __pycache__/utils.cpython-313.pyc
 __pycache__/interpreter.cpython-313.pyc
+__pycache__/interpreter.cpython-314.pyc
+__pycache__/state.cpython-314.pyc
+__pycache__/parser.cpython-314.pyc
