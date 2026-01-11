@@ -9,3 +9,8 @@ __pycache__/interpreter.cpython-313.pyc
 __pycache__/interpreter.cpython-314.pyc
 __pycache__/state.cpython-314.pyc
 __pycache__/parser.cpython-314.pyc
+interpreter.py
+__pycache__/interpreter.cpython-314.pyc
+__pycache__/model.cpython-314.pyc
+__pycache__/parser.cpython-314.pyc
+__pycache__/utils.cpython-314.pyc

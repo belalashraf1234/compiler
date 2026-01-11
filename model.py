@@ -101,7 +101,15 @@ class PrintStmt(Stmt):
     def __repr__(self):
         return f'PrintStmt({self.value}), end={self.end!r}'
 class WhileStmt(Stmt):
-    pass
+    def __init__(self,test,body_stmts,line):
+        assert isinstance(test,Expression),test
+        assert isinstance(body_stmts,Stmts),body_stmts
+        self.test=test
+        self.body_stmts=body_stmts
+        self.line=line
+    def __repr__(self):
+        return f'WhileStmt({self.test},{self.body_stmts})'
+    
 class Assignment(Stmt):
     def __init__(self,left,right,line):
         assert isinstance(left,Expression),left
@@ -135,4 +143,17 @@ class Identifier(Expression):
         return f'Identifier({self.name})'
 
 class ForStmt(Stmt):
-    pass
+    def __init__(self,ident,start,end,step,body_stmts,line):
+        assert isinstance(ident,Identifier),ident
+        assert isinstance(start,Expression),start
+        assert isinstance(end,Expression),end
+        assert isinstance(step,Expression) or step is None,step
+        assert isinstance(body_stmts,Stmts),body_stmts
+        self.ident=ident
+        self.start=start
+        self.end=end
+        self.step=step
+        self.body_stmts=body_stmts
+        self.line=line
+    def __repr__(self):
+        return f'ForStmt({self.ident},{self.start},{self.end},{self.step},{self.body_stmts})'

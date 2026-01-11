@@ -41,7 +41,7 @@ class Interpreter:
                 if lefttype==TYPE_NUMBER and righttype==TYPE_NUMBER:
                     return (TYPE_NUMBER,leftval+rightval)
                 elif lefttype==TYPE_STRING or righttype==TYPE_STRING:
-                    return(TYPE_STRING,str(leftval)+str(rightval))
+                    return(TYPE_STRING,stringify(leftval)+stringify(rightval))
                 else:
                     runtime_error(f'Unsupported operator {node.operator.lexeme!r} between {lefttype} and {righttype} ',node.operator.line)
             elif node.operator.type==TOK_MINUS:
@@ -150,7 +150,8 @@ class Interpreter:
                 self.interpret(stmt,env)
         elif isinstance(node,PrintStmt):
             exprtype,exprval=self.interpret(node.value,env)
-            print(codecs.escape_decode(bytes(str(exprval), "utf-8"))[0].decode("utf-8"),end=node.end)
+            val=stringify(exprval)
+            print(codecs.escape_decode(bytes(val, "utf-8"))[0].decode("utf-8"),end=node.end)
         elif isinstance(node,IfStmt):
             testtype,testval=self.interpret(node.test,env)
             if testtype !=TYPE_BOOL:
@@ -158,7 +159,42 @@ class Interpreter:
             if testval:
                 self.interpret(node.then_stmts,env.new_env())
             else:
-                self.interpret(node.else_stmts,env.new_env())                 
+                self.interpret(node.else_stmts,env.new_env())   
+        elif isinstance(node,WhileStmt):
+            new_env=env.new_env()
+            while True:
+                testtype,testval=self.interpret(node.test,env)
+                if testtype !=TYPE_BOOL:
+                    runtime_error(f"while test is not a boolean expression",node.line)
+                if not testval:
+                    break
+                self.interpret(node.body_stmts,new_env)
+        elif isinstance(node,ForStmt):
+            varname=node.ident.name
+            itype,i=self.interpret(node.start,env)
+            endtype,end=self.interpret(node.end,env)
+            block_new_env=env.new_env()
+            if i<end:
+                if node.step is None:
+                    step=1
+                else:
+                    steptype,step=self.interpret(node.step,env)   
+                while i<=end :
+                    newval=(TYPE_NUMBER,i)
+                    env.set_var(varname,newval)
+                    self.interpret(node.body_stmts,block_new_env)
+                    i=i+step
+            else:
+                if node.step is None:
+                    step=-1
+                else:
+                    steptype,step=self.interpret(node.step,env)   
+                while i>=end :
+                    newval=(TYPE_NUMBER,i)
+                    env.set_var(varname,newval)
+                    self.interpret(node.body_stmts,block_new_env)
+                    i=i+step
+                                           
  
     def interpret_ast(self,node):
         env=Enviroment()

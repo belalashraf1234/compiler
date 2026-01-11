@@ -37,7 +37,14 @@ def runtime_error(message,lineno):
     import sys
     sys.exit(1)
 
-
+def stringify(val):
+    if isinstance(val,bool) and val==True:
+        return "true"
+    if isinstance(val,bool) and val==False:
+        return "false"
+    if isinstance(val,float) and val.is_integer():
+        return str(int(val))
+    return str(val)
 
 
 class Colors:
