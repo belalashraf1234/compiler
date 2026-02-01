@@ -186,6 +186,23 @@ class Parser:
         body_stmts=self.stmts()
         self.expect(TOK_END)
         return ForStmt(identifier,start,end,step,body_stmts,line=self.previous_token().line)
+    def params(self):
+        params=[]
+        while not self.is_next(TOK_RPAREN):
+            name=self.expect(TOK_IDENTIFIER)
+            params.append(Params(name.lexeme,line=self.previous_token().line))
+            if not self.is_next(TOK_COMMA):
+                self.expect(TOK_COMMA)
+            return params
+    def func_decl(self):
+        self.expect(TOK_FUNC)
+        name=self.expect(TOK_IDENTIFIER)
+        self.expect(TOK_LPAREN)
+        params=self.params()
+        self.expect(TOK_RPAREN)
+        body_stmts=self.stmts()
+        self.expect(TOK_END)
+        return FuncDecl(name.lexeme,params,body_stmts,line=self.previous_token().line)
 
 
 
@@ -193,14 +210,16 @@ class Parser:
     def stmt(self):
         if self.peek().type == TOK_PRINT:
             return self.print_stmt(end='')
-        if self.peek().type == TOK_PRINTLN:
+        elif self.peek().type == TOK_PRINTLN:
             return self.print_stmt(end='\n')
-        if self.peek().type == TOK_IF:
+        elif self.peek().type == TOK_IF:
             return self.if_stmt()
-        if self.peek().type==TOK_WHILE:
+        elif self.peek().type==TOK_WHILE:
             return self.while_stmt()
-        if self.peek().type==TOK_FOR:
+        elif self.peek().type==TOK_FOR:
             return self.for_stmt()
+        elif self.peek().type==TOK_FUNC:
+            return self.func_decl()
         else:
             left=self.expr()
             if self.match(TOK_ASSIGN):

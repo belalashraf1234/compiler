@@ -4,6 +4,12 @@ class Node:
 class Expression(Node):
    pass
 
+
+
+
+class Decl(Stmt):
+    pass
+
 class Intger(Expression):
     def __init__(self, value,line):
         assert isinstance(value,int), value
@@ -157,3 +163,37 @@ class ForStmt(Stmt):
         self.line=line
     def __repr__(self):
         return f'ForStmt({self.ident},{self.start},{self.end},{self.step},{self.body_stmts})'
+
+
+
+class FuncDecl(Decl):
+    def __init__(self,name,params,body_stmts,line):
+        assert isinstance(name,str),name
+        assert all(isinstance(param,Params) for param in params)
+        self.name=name
+        self.params=params
+        self.body_stmts=body_stmts
+        self.line=line
+    def  __repr__(self):
+        return f'FuncDecl({self.name!r}, {self.params}, {self.body_stmts})'
+ 
+    
+
+class Params(Decl):
+    def __init__(self,name,line):
+        assert isinstance(name,str),name
+        self.name=name
+        self.line=line
+    def __repr__(self):
+        return f'Param[{self.name!r}]'
+     
+
+class FuncCall(Expression):
+     def __init__(self,name,args,line):
+      
+        self.name=name
+        self.args=args
+        self.args=args
+        self.line=line
+     def  __repr__(self):
+        return f'FuncDecl({self.name!r}, {self.args})'
