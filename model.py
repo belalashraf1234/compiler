@@ -4,6 +4,8 @@ class Node:
 class Expression(Node):
    pass
 
+class Stmt(Node):
+    pass
 
 
 
@@ -17,9 +19,6 @@ class Intger(Expression):
         self.line = line
     def __repr__(self):
         return f"Intger({self.value})"
-    
-class Stmt(Node):
-    pass
 
 class Grouping(Expression):
     def __init__(self, value,line):
@@ -52,7 +51,7 @@ class String(Expression):
         self.line=line
     def __repr__(self):
         return f'String[{self.value}]'
-    
+
 class UnOp(Expression):
     def __init__(self, operator:Token, operand:Expression, line):
         
@@ -197,3 +196,30 @@ class FuncCall(Expression):
         self.line=line
      def  __repr__(self):
         return f'FuncDecl({self.name!r}, {self.args})'
+     
+class FuncCallStatment(Stmt):
+    def __init__(self,expr,line):
+        assert isinstance(expr,FuncCall),expr
+        self.expr=expr
+        self.line=line
+    def __repr__(self):
+        return f'FuncCallStatment({self.expr})'
+
+class RetStmt(Stmt):
+    def __init__(self,value,line):
+        assert isinstance(value,Expression),value
+        self.value=value
+        self.line=line
+    def __repr__(self):
+        return f'RetStmt[{self.value}]'
+class LocalAssigment(Stmt):
+    def __init__(self,left,right,line):
+        assert isinstance(left,Expression),left
+        assert isinstance(right,Expression),right
+        self.left=left
+        self.right=right
+        self.line=line
+    def __repr__(self):
+        return f'LocalAssigment({self.left} , {self.right})'
+
+       

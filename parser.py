@@ -45,6 +45,8 @@ class Parser:
     
     def grouping(self):
         pass
+
+
     def primary(self):
         if self.match(TOK_INTEGER):
             return Intger(int(self.previous_token().lexeme),line=self.previous_token().line)
@@ -64,7 +66,12 @@ class Parser:
                 return Grouping(expr,line=self.previous_token().line)
         else:
             identifier=self.expect(TOK_IDENTIFIER)
-            return Identifier(identifier.lexeme,line=self.previous_token().line)
+            if self.match(TOK_LPAREN):
+                args=self.args()
+                self.expect(TOK_RPAREN)
+                return FuncCall(identifier.lexeme,args,line=self.previous_token().line)
+            else:    
+                return Identifier(identifier.lexeme,line=self.previous_token().line)
         if self.curr >= len(self.tokens):
             parse_error("Unexpected end of input",self.previous_token().line)
         parse_error(f"Unexpected token: {self.peek().lexeme}",self.peek().line)
@@ -186,12 +193,25 @@ class Parser:
         body_stmts=self.stmts()
         self.expect(TOK_END)
         return ForStmt(identifier,start,end,step,body_stmts,line=self.previous_token().line)
+
+
+    def args(self):
+        args=[]
+        while not self.is_next(TOK_RPAREN):
+            args.append(self.expr())
+            if  not self.is_next(TOK_RPAREN):
+                self.expect(TOK_COMMA)
+        return args
+
+
+
+
     def params(self):
         params=[]
         while not self.is_next(TOK_RPAREN):
             name=self.expect(TOK_IDENTIFIER)
             params.append(Params(name.lexeme,line=self.previous_token().line))
-            if not self.is_next(TOK_COMMA):
+            if not self.is_next(TOK_RPAREN):
                 self.expect(TOK_COMMA)
             return params
     def func_decl(self):
@@ -204,6 +224,17 @@ class Parser:
         self.expect(TOK_END)
         return FuncDecl(name.lexeme,params,body_stmts,line=self.previous_token().line)
 
+    def ret_stmt(self):
+        self.expect(TOK_RET)
+        value=self.expr()
+        return RetStmt(value,line=self.previous_token().line)
+
+    def local_assign(self):
+        self.expect(TOK_LOCAL)
+        left=self.expr()
+        self.expect(TOK_ASSIGN)
+        right=self.expr()
+        return LocalAssigment(left,right,line=self.previous_token().line)
 
 
 
@@ -220,13 +251,18 @@ class Parser:
             return self.for_stmt()
         elif self.peek().type==TOK_FUNC:
             return self.func_decl()
+        elif self.peek().type==TOK_RET:
+            return self.ret_stmt()
+        elif self.peek().type==TOK_LOCAL:
+            return self.local_assign()
+
         else:
             left=self.expr()
             if self.match(TOK_ASSIGN):
                 right=self.expr()
                 return Assignment(left,right,self.previous_token().line)
             else:
-                parse_error(f" : {self.peek().lexeme}", self.peek().line)
+                return FuncCallStatment(left, self.previous_token().line)
 
         
 

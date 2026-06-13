@@ -32,6 +32,11 @@ class Interpreter:
         elif isinstance(node,Assignment):
             righttype,rightval=self.interpret(node.right,env)
             env.set_var(node.left.name,(righttype,rightval))
+
+        elif isinstance(node,LocalAssigment):
+
+            righttype,rightval=self.interpret(node,env)
+            env.set_local(node.left.name,(righttype,rightval))
         
         elif isinstance(node,BinOp):
             lefttype,leftval=self.interpret(node.left,env)
@@ -194,7 +199,35 @@ class Interpreter:
                     env.set_var(varname,newval)
                     self.interpret(node.body_stmts,block_new_env)
                     i=i+step
-                                           
+        elif isinstance(node,FuncDecl):
+            env.set_func(node.name,(node,env))
+
+
+        elif isinstance(node,FuncCall):
+            func=env.get_func(node.name)
+            if not func:
+                runtime_error(f'Function{node.name!r} not declared',node.line)
+            func_decl=func[0]
+            func_env=func[1]
+            if len(node.args) !=len(func_decl.params):
+                runtime_error(f'Function{func_decl.name!r} expected {len(func_decl.params)} params but {len(node.args)}  arguments was passed ',node.line)
+
+            args=[]
+            for arg in node.args:
+                args.append(self.interpret(arg,env))
+                    
+            new_func_env=func_env.new_env()
+            for param,argval in zip(func_decl.params,args):
+                new_func_env.set_local(param.name,argval)
+
+            try:
+                self.interpret(func_decl.body_stmts,new_func_env)
+            except Return as e:
+                return e.args[0]
+        elif isinstance(node,FuncCallStatment):
+            self.interpret(node.expr,env)
+        elif isinstance(node,RetStmt):
+            raise Return(self.interpret(node.value,env))                                    
  
     def interpret_ast(self,node):
         env=Enviroment()
@@ -202,4 +235,5 @@ class Interpreter:
 
     
 
-
+class Return(Exception):
+    pass

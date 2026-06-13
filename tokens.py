@@ -52,6 +52,7 @@ TOK_END      = 'TOK_END'
 TOK_PRINT    = 'TOK_PRINT'
 TOK_PRINTLN  = 'TOK_PRINTLN'
 TOK_RET      = 'TOK_RET'
+TOK_LOCAL    = 'TOK_LOCAL'
 
 keywords = {
     'if'      : TOK_IF,
